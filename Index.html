@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Nima</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+overflow:hidden;
+background:black;
+font-family:'Poppins',sans-serif;
+touch-action:manipulation;
+}
+
+#video{
+position:fixed;
+top:0;
+left:0;
+width:100vw;
+height:100vh;
+object-fit:cover;
+z-index:1;
+}
+
+.overlay{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.35);
+z-index:2;
+}
+
+.content{
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+width:90%;
+text-align:center;
+z-index:3;
+}
+
+#text{
+color:white;
+font-size:clamp(1.5rem,6vw,3rem);
+font-weight:400;
+line-height:1.5;
+text-shadow:0 0 20px rgba(0,0,0,.9);
+min-height:150px;
+}
+
+.tap{
+Display:none;
+position:absolute;
+bottom:35px;
+left:50%;
+transform:translateX(-50%);
+color:rgba(255,255,255,.75);
+font-size:.9rem;
+letter-spacing:2px;
+z-index:4;
+}
+
+#buttons{
+display:none;
+justify-content:center;
+gap:20px;
+margin-top:30px;
+}
+
+#buttons button{
+padding:12px 24px;
+border:none;
+border-radius:12px;
+font-size:1rem;
+font-weight:600;
+cursor:pointer;
+background:white;
+color:black;
+transition:.3s;
+}
+
+#buttons button:hover{
+transform:scale(1.05);
+}
+
+.fade{
+animation:fade 1s ease;
+}
+
+@keyframes fade{
+from{
+opacity:0;
+}
+to{
+opacity:1;
+}
+}
+#letterScreen{
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+z-index:10;
+text-align:center;
+}
+
+.envelope{
+position:relative;
+width:min(280px,80vw);
+height:min(180px,52vw);
+background:#f5e7c6;
+cursor:pointer;
+border-radius:8px;
+overflow:hidden;
+}
+
+.flap{
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:#e6d3a3;
+clip-path:polygon(0 0,100% 0,50% 55%);
+transform-origin:top;
+transition:1s;
+z-index:2;
+}
+
+.paper{
+position:absolute;
+left:10%;
+top:20%;
+width:80%;
+height:130px;
+background:white;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:1.2rem;
+color:black;
+transition:1s;
+z-index:1;
+}
+
+.envelope.open .flap{
+transform:rotateX(180deg);
+}
+
+.envelope.open .paper{
+transform:translateY(-120px);
+}
+
+.openText{
+margin-top:20px;
+color:white;
+letter-spacing:2px;
+}
+</style>
+</head>
+
+<body>
+
+<video id="video" autoplay muted loop playsinline></video>
+
+<div class="overlay"></div>
+
+<!-- LETTER SCREEN -->
+<div id="letterScreen">
+
+<div class="envelope" onclick="openLetter()">
+<div class="flap"></div>
+
+<div class="paper">
+For Nima 
+</div>
+
+</div>
+
+<p class="openText">
+Click the letter
+</p>
+
+</div>
+
+<div class="content" style="display:none;">
+
+<div id="text"></div>
+
+<div id="buttons">
+<button id="yesBtn">YES</button>
+<button id="noBtn">ABSOLUTELY YES</button>
+</div>
+
+</div>
+
+<div class="tap">
+Tap Anywhere
+</div>
+
+</body>
+
+<div class="tap">
+Tap Anywhere
+</div>
+</body>
+</html>
+<script>
+
+const scenes = [
+
+{
+video:"black",
+text:"Opening Ancient Records..."
+},
+
+{
+video:"black",
+text:"Searching Across The Seas..."
+},
+
+{
+video:"black",
+text:"A Mysterious Presence<br>is Detected."
+},
+
+{
+video:"black",
+text:"Identity Confirmed..."
+},
+
+{
+video:"Nima.mp4",
+text:"Nimaa..."
+},
+
+{
+video:"black",
+text:"Is Nima Actually Tired?",
+buttons:true
+},
+
+{
+video:"Ship.mp4",
+text:"Luffy searched<br>the entire Grand Line."
+},
+
+{
+video:"Treassure.mov",
+text:"He found<br>treasure."
+},
+
+{
+video:"Friendship.mov",
+text:"He found<br>friendship."
+},
+
+{
+video:"Clouds.mp4",
+text:"Even after<br>3 years..."
+},
+
+{
+video:"Ship.mp4",
+text:"He even found<br>the One Piece."
+},
+
+{
+video:"Ship.mp4",
+text:"But he's still trying<br>to find..."
+},
+
+{
+video:"Ship.mp4",
+text:"the smile behind<br>Nimaa's stories."
+},
+
+{
+video:"Treassures.mov",
+text:"Some mysteries<br>take time..."
+},
+
+{
+video:"black",
+text:"And some adventures<br>are worth taking."
+},
+{
+video:"Luffy.mp4",
+text:"Until then..."
+},
+
+{
+video:"Luffy.mp4",
+text:"I'll keep searching<br>for that smile :)"
+},
+
+{
+video:"Luffy.mp4",
+text:"— Atharva chan :)"
+}
+
+];
+
+let current = 0;
+
+const video = document.getElementById("video");
+const text = document.getElementById("text");
+
+const buttons = document.getElementById("buttons");
+const yesBtn = document.getElementById("yesBtn");
+const noBtn = document.getElementById("noBtn");
+
+function typeWriter(html){
+
+text.innerHTML="";
+
+const temp=document.createElement("div");
+temp.innerHTML=html;
+
+const content=temp.innerText;
+
+let i=0;
+
+const timer=setInterval(()=>{
+
+text.innerHTML=content.substring(0,i);
+
+i++;
+
+if(i>content.length){
+
+clearInterval(timer);
+
+text.innerHTML=html;
+
+}
+
+},65);
+
+}
+
+function showScene(){
+
+const content=document.querySelector(".content");
+
+if(scenes[current].video==="Ship.mp4"){
+
+content.style.top="20%";
+text.style.fontSize="clamp(1.8rem,4vw,3rem)";
+
+
+}else{
+
+content.style.top="50%";
+text.style.fontSize="clamp(2rem,5vw,4rem)";
+
+}
+
+if(scenes[current].video==="black"){
+
+video.style.display="none";
+document.body.style.background="black";
+
+}else{
+
+video.style.display="block";
+
+video.src=scenes[current].video;
+
+video.load();
+
+video.play();
+
+}
+
+text.classList.remove("fade");
+
+void text.offsetWidth;
+
+text.classList.add("fade");
+
+if(scenes[current].buttons){
+
+buttons.style.display="flex";
+
+}else{
+
+buttons.style.display="none";
+
+}
+
+typeWriter(scenes[current].text);
+
+}
+
+//showScene();
+
+document.body.addEventListener("click",()=>{
+
+if(scenes[current].buttons){
+return;
+}
+
+if(current < scenes.length-1){
+
+current++;
+
+showScene();
+
+}
+
+});
+
+yesBtn.addEventListener("click",(e)=>{
+
+e.stopPropagation();
+
+current++;
+
+showScene();
+
+});
+
+noBtn.addEventListener("click",(e)=>{
+
+e.stopPropagation();
+
+current++;
+
+showScene();
+
+});
+function openLetter(){
+
+const envelope=document.querySelector(".envelope");
+
+envelope.classList.add("open");
+
+setTimeout(()=>{
+
+document.getElementById("letterScreen").innerHTML=`
+
+<div style="
+background:white;
+padding:40px;
+border-radius:20px;
+max-width:90vw;
+width:90vw;
+color:black;
+line-height:2;
+font-size:1.1rem;
+cursor:pointer;
+" onclick="startStory()">
+
+Dear Nima,<br><br>
+
+The Straw Hats recently discovered
+an ancient record hidden somewhere
+in the Grand Line.<br><br>
+
+It mentioned a mysterious girl
+named Nima...<br><br>
+
+Naturally, an investigation began.<br><br>
+
+(Click to continue)
+
+</div>
+
+`;
+
+},1200);
+
+}
+
+function startStory(){
+document.querySelector(".tap").style.display="block";
+
+document.getElementById("letterScreen").style.display="none";
+
+document.querySelector(".content").style.display="block";
+
+showScene();
+
+}
+</script>
+
+</body>
+</html>
